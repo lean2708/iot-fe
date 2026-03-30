@@ -647,6 +647,26 @@ html.dark .device-card.emergency {
   width: 38%;
 }
 
+.action-col-id {
+  width: 12%;
+}
+
+.action-col-device {
+  width: 20%;
+}
+
+.action-col-action {
+  width: 18%;
+}
+
+.action-col-time {
+  width: 28%;
+}
+
+.action-col-status {
+  width: 22%;
+}
+
 .sensor-history-table thead tr {
   background: rgba(148, 163, 184, 0.1);
 }
@@ -696,6 +716,59 @@ html.dark .device-card.emergency {
 .metric-cyan {
   color: #06b6d4;
   font-weight: 700;
+}
+
+.history-icon-purple {
+  color: #a855f7;
+  font-weight: 700;
+}
+
+.history-action-text {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.history-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.history-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.history-status-on {
+  color: #10b981;
+}
+
+.history-status-off {
+  color: #94a3b8;
+}
+
+.history-status-loading {
+  color: #f59e0b;
+}
+
+.history-status-spin {
+  font-size: 0.9rem;
+  animation: history-spin 1.1s linear infinite;
+}
+
+@keyframes history-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .table-head-sort {

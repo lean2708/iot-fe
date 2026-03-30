@@ -44,9 +44,6 @@ function Sidebar() {
           <p className="sidebar-user-name">{user.fullName}</p>
           <p className="sidebar-user-state">{user.status}</p>
         </div>
-        <button type="button" className="sidebar-logout" aria-label="Logout">
-          <span className="material-symbols-outlined">logout</span>
-        </button>
       </div>
     </aside>
   )

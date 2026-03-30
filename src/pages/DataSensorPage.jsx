@@ -131,6 +131,7 @@ function DataSensorPage() {
       const keyword = search.trim().toLowerCase()
       logs = logs.filter((item) => {
         if (searchBy === 'value') return item.value.toLowerCase().includes(keyword)
+        if (searchBy === 'name') return item.metric.toLowerCase().includes(keyword)
         if (searchBy === 'id') return item.id.toLowerCase().includes(keyword)
         return item.timestamp.toLowerCase().includes(keyword)
       })
@@ -187,9 +188,13 @@ function DataSensorPage() {
           <div className="sensor-search-by">
             <select
               value={searchBy}
-              onChange={(event) => setSearchBy(event.target.value)}
+              onChange={(event) => {
+                setSearchBy(event.target.value)
+                setPage(1)
+              }}
             >
               <option value="value">Value</option>
+              <option value="name">Name</option>
               <option value="time">Time</option>
               <option value="id">Log ID</option>
             </select>
@@ -236,7 +241,10 @@ function DataSensorPage() {
                       <span>Sort</span>
                       <select
                         value={sortBy}
-                        onChange={(event) => setSortBy(event.target.value)}
+                        onChange={(event) => {
+                          setSortBy(event.target.value)
+                          setPage(1)
+                        }}
                         aria-label="Sort rows"
                       >
                         <option>Newest</option>
