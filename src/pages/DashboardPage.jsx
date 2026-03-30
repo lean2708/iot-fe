@@ -6,6 +6,8 @@ import { useAppContext } from '../contexts/AppContext'
 import { useDashboardData } from '../hooks/useDashboardData'
 import { formatDuration } from '../utils/formatters'
 
+const AXIS_24H = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00']
+
 function DashboardPage() {
   const { classroomId } = useAppContext()
   const { loading, metrics, devices, history, onToggleDevice } = useDashboardData(classroomId)
@@ -62,27 +64,27 @@ function DashboardPage() {
           pill="Avg 24°C"
           pillStyle={{ color: '#137fec', background: 'rgba(19, 127, 236, 0.12)' }}
           data={history.temperature}
-          axis={['08:00', '16:00', '00:00']}
+          axis={AXIS_24H}
           stroke="#137fec"
           gradientId="tempGrad"
         />
         <ChartCard
           title="Light Intensity"
-          subtitle="Real-time usage"
+          subtitle="Last 24 Hours"
           pill="Avg 480 Lux"
           pillStyle={{ color: '#ca8a04', background: 'rgba(234, 179, 8, 0.16)' }}
           data={history.light}
-          axis={['08:00', '16:00', '00:00']}
+          axis={AXIS_24H}
           stroke="#f59e0b"
           gradientId="lightGrad"
         />
         <ChartCard
           title="LED Usage History"
-          subtitle="Hours per day"
+          subtitle="Last 24 Hours"
           pill="Weekly Avg 5.2h"
           pillStyle={{ color: '#9333ea', background: 'rgba(168, 85, 247, 0.16)' }}
           data={history.led}
-          axis={['Mon', 'Wed', 'Sun']}
+          axis={AXIS_24H}
           stroke="#a855f7"
           gradientId="ledGrad"
         />

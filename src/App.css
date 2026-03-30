@@ -288,7 +288,9 @@
   display: flex;
   justify-content: space-between;
   color: var(--text-muted);
-  font: 500 0.72rem/1 var(--font-mono);
+  font: 500 0.62rem/1 var(--font-mono);
+  overflow: hidden;
+  gap: 0;
 }
 
 .section-title {

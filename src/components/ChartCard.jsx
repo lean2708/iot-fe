@@ -56,8 +56,8 @@ function ChartCard({ title, subtitle, pill, pillStyle, data, axis, stroke, gradi
       </div>
 
       <div className="chart-axis">
-        {axis.map((item) => (
-          <span key={item}>{item}</span>
+        {axis.map((item, index) => (
+          <span key={index}>{item}</span>
         ))}
       </div>
     </article>
