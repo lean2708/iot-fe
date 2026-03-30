@@ -1,0 +1,62 @@
+:root {
+  --font-display: 'Space Grotesk', 'Segoe UI', sans-serif;
+  --font-body: 'Noto Sans', 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', Consolas, monospace;
+  --bg: #f6f7f8;
+  --bg-elevated: #ffffff;
+  --bg-sidebar: #ffffff;
+  --bg-gradient: linear-gradient(160deg, #f6f7f8 0%, #eceff3 100%);
+  --text-strong: #0f172a;
+  --text-muted: #64748b;
+  --line: #e2e8f0;
+  --primary: #137fec;
+  --primary-soft: rgba(19, 127, 236, 0.12);
+  --green: #22c55e;
+  --amber: #f59e0b;
+  --red: #dc2626;
+  --shadow-card: none;
+  --radius-lg: 18px;
+}
+
+html {
+  font-size: 14px;
+  height: 100%;
+  overflow: hidden;
+}
+
+html.dark {
+  --bg: #101922;
+  --bg-elevated: #1c242d;
+  --bg-sidebar: #1c242d;
+  --bg-gradient: linear-gradient(150deg, #101922 0%, #141b24 100%);
+  --text-strong: #ecf1f8;
+  --text-muted: #94a3b8;
+  --line: #2d3748;
+  --primary: #137fec;
+  --primary-soft: rgba(19, 127, 236, 0.2);
+  --shadow-card: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--text-strong);
+  background: var(--bg-gradient);
+  height: 100%;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100%;
+  overflow: hidden;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+}
