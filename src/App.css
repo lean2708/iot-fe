@@ -140,7 +140,7 @@
 
 .dashboard-title {
   margin: 0;
-  font: 700 1.72rem/1 var(--font-display);
+  font: 700 2.1rem/1 var(--font-display);
 }
 
 .metrics-grid {
@@ -458,6 +458,354 @@ html.dark .device-card.emergency {
   font-weight: 600;
 }
 
+.sensor-history-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sensor-page-title {
+  font-size: 2.1rem;
+}
+
+.sensor-header {
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sensor-header-left,
+.sensor-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sensor-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--line);
+}
+
+.sensor-select-wrap,
+.sensor-search-by {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.sensor-classroom-select,
+.sensor-search-by select,
+.sensor-page-size select {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  color: var(--text-strong);
+  padding: 7px 30px 7px 10px;
+  appearance: none;
+  outline: none;
+  font: 600 0.82rem/1 var(--font-body);
+}
+
+.sensor-select-wrap > .material-symbols-outlined,
+.sensor-search-by > .material-symbols-outlined {
+  position: absolute;
+  right: 6px;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  pointer-events: none;
+}
+
+.sensor-update {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.sensor-refresh-btn {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.sensor-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.sensor-search-wrap {
+  display: flex;
+  align-items: center;
+  position: relative;
+  border: 1px solid var(--line);
+  background: var(--bg-elevated);
+  border-radius: 10px;
+  overflow: hidden;
+  min-width: 500px;
+  flex: 1;
+  min-height: 50px;
+}
+
+.sensor-search-icon {
+  position: absolute;
+  left: 10px;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+}
+
+.sensor-search-input {
+  border: none;
+  background: transparent;
+  color: var(--text-strong);
+  padding: 12px 12px 12px 38px;
+  width: 100%;
+  outline: none;
+  font-size: 0.96rem;
+}
+
+.sensor-search-by {
+  border-left: 1px solid var(--line);
+}
+
+.sensor-search-by select {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+.sensor-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(148, 163, 184, 0.15);
+  border-radius: 10px;
+  padding: 3px;
+}
+
+.sensor-tab {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 8px 10px;
+  border-radius: 8px;
+  font: 600 0.8rem/1 var(--font-body);
+  cursor: pointer;
+}
+
+.sensor-tab.active {
+  background: var(--bg-elevated);
+  color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.sensor-table-card {
+  border: 1px solid var(--line);
+  background: var(--bg-elevated);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.sensor-table-scroller {
+  overflow-x: auto;
+}
+
+.sensor-history-table {
+  width: 100%;
+  min-width: 690px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.sensor-col-id {
+  width: 14%;
+}
+
+.sensor-col-name {
+  width: 28%;
+}
+
+.sensor-col-value {
+  width: 20%;
+}
+
+.sensor-col-time {
+  width: 38%;
+}
+
+.sensor-history-table thead tr {
+  background: rgba(148, 163, 184, 0.1);
+}
+
+.sensor-history-table th,
+.sensor-history-table td {
+  padding: 8px 11px;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.76rem;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.sensor-history-table th {
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.64rem;
+  font-weight: 700;
+}
+
+.sensor-history-table tbody tr:hover {
+  background: rgba(148, 163, 184, 0.08);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+.metric-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.metric-blue {
+  color: #3b82f6;
+  font-weight: 700;
+}
+
+.metric-yellow {
+  color: #f59e0b;
+  font-weight: 700;
+}
+
+.metric-cyan {
+  color: #06b6d4;
+  font-weight: 700;
+}
+
+.table-head-sort {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.sensor-sort-wrap {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 4px 6px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.67rem;
+  background: var(--bg-elevated);
+  margin-left: auto;
+}
+
+.sensor-sort-wrap select {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.sensor-table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  background: rgba(148, 163, 184, 0.08);
+}
+
+.sensor-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.sensor-footer-left p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.sensor-footer-left strong {
+  color: var(--text-strong);
+}
+
+.sensor-page-size {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sensor-page-size label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.sensor-page-size span {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  color: var(--text-strong);
+  padding: 6px 10px;
+  font: 700 0.78rem/1 var(--font-body);
+}
+
+.sensor-pagination {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sensor-pagination button {
+  border: 1px solid var(--line);
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.sensor-pagination button.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  font-weight: 700;
+}
+
+.sensor-pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sensor-pagination span {
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
 @media (max-width: 1180px) {
   .charts-grid {
     grid-template-columns: 1fr;
@@ -465,6 +813,15 @@ html.dark .device-card.emergency {
 
   .devices-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sensor-search-wrap {
+    min-width: 100%;
+  }
+
+  .sensor-tabs {
+    width: 100%;
+    overflow-x: auto;
   }
 }
 
@@ -498,7 +855,7 @@ html.dark .device-card.emergency {
   }
 
   .dashboard-title {
-    font-size: 1.5rem;
+    font-size: 2.1rem;
   }
 
   .dashboard-header {
@@ -508,5 +865,19 @@ html.dark .device-card.emergency {
 
   .devices-grid {
     grid-template-columns: 1fr;
+  }
+
+  .sensor-header {
+    padding: 10px;
+  }
+
+  .sensor-header-left {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .sensor-header-right {
+    width: 100%;
+    justify-content: space-between;
   }
 }
