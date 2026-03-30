@@ -956,6 +956,20 @@ html.dark .device-card.emergency {
   min-height: 310px;
 }
 
+.profile-feedback {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+}
+
+.profile-feedback-error {
+  color: #ef4444;
+}
+
+.profile-feedback-success {
+  color: #10b981;
+}
+
 .profile-hero {
   display: flex;
   align-items: center;
@@ -974,6 +988,9 @@ html.dark .device-card.emergency {
   border-radius: 18px;
   border: 1px solid var(--line);
   background: linear-gradient(145deg, #0ea5e9, #38bdf8);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
   box-shadow: 0 14px 22px rgba(15, 23, 42, 0.2);
 }
 
@@ -1023,9 +1040,94 @@ html.dark .device-card.emergency {
   filter: brightness(1.08);
 }
 
+.profile-edit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.profile-edit-form {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+  background: rgba(148, 163, 184, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.profile-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.profile-form-field span {
+  font-size: 0.73rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.profile-form-field input,
+.profile-form-field select {
+  border: 1px solid var(--line);
+  background: var(--bg-elevated);
+  color: var(--text-strong);
+  border-radius: 9px;
+  padding: 9px 10px;
+  outline: none;
+  font: 600 0.86rem/1 var(--font-body);
+}
+
+.profile-form-field input:focus,
+.profile-form-field select:focus {
+  border-color: rgba(59, 130, 246, 0.55);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
+}
+
+.profile-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.profile-form-cancel,
+.profile-form-save {
+  border-radius: 9px;
+  padding: 8px 13px;
+  font: 700 0.78rem/1 var(--font-body);
+  cursor: pointer;
+}
+
+.profile-form-cancel {
+  border: 1px solid var(--line);
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+}
+
+.profile-form-save {
+  border: 1px solid var(--primary);
+  background: var(--primary);
+  color: white;
+}
+
+.profile-form-cancel:disabled,
+.profile-form-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .profile-info-grid {
   display: grid;
   gap: 12px;
+  margin-top: 25px;
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
@@ -1033,8 +1135,8 @@ html.dark .device-card.emergency {
   border: 1px solid var(--line);
   border-radius: 12px;
   background: rgba(148, 163, 184, 0.08);
-  padding: 13px;
-  min-height: 120px;
+  padding: 10px 12px;
+  min-height: 92px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1088,9 +1190,9 @@ html.dark .device-card.emergency {
 }
 
 .profile-info-value {
-  margin: 12px 0 0;
+  margin: 8px 0 0;
   color: var(--text-strong);
-  font-size: 1.04rem;
+  font-size: 0.98rem;
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
@@ -1229,6 +1331,10 @@ html.dark .device-card.emergency {
 
   .profile-info-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .profile-form-grid {
+    grid-template-columns: 1fr;
   }
 }
 
