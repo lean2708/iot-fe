@@ -1,109 +1,5 @@
-import { useMemo, useState } from 'react'
-
-const SENSOR_LOGS = [
-  {
-    id: '#LOG-0512',
-    metric: 'Temperature',
-    metricIcon: 'thermostat',
-    metricColor: 'blue',
-    value: '24.5 °C',
-    valueRaw: 24.5,
-    timestamp: 'Oct 24, 2023 • 11:20:12 AM',
-    timeIndex: 512,
-  },
-  {
-    id: '#LOG-0511',
-    metric: 'Humidity',
-    metricIcon: 'water_drop',
-    metricColor: 'cyan',
-    value: '62%',
-    valueRaw: 62,
-    timestamp: 'Oct 24, 2023 • 11:19:05 AM',
-    timeIndex: 511,
-  },
-  {
-    id: '#LOG-0510',
-    metric: 'Light Intensity',
-    metricIcon: 'light_mode',
-    metricColor: 'yellow',
-    value: '520 Lux',
-    valueRaw: 520,
-    timestamp: 'Oct 24, 2023 • 11:18:50 AM',
-    timeIndex: 510,
-  },
-  {
-    id: '#LOG-0509',
-    metric: 'Humidity',
-    metricIcon: 'water_drop',
-    metricColor: 'cyan',
-    value: '58%',
-    valueRaw: 58,
-    timestamp: 'Oct 24, 2023 • 11:17:30 AM',
-    timeIndex: 509,
-  },
-  {
-    id: '#LOG-0508',
-    metric: 'Temperature',
-    metricIcon: 'thermostat',
-    metricColor: 'blue',
-    value: '24.2 °C',
-    valueRaw: 24.2,
-    timestamp: 'Oct 24, 2023 • 11:15:15 AM',
-    timeIndex: 508,
-  },
-  {
-    id: '#LOG-0507',
-    metric: 'Light Intensity',
-    metricIcon: 'light_mode',
-    metricColor: 'yellow',
-    value: '480 Lux',
-    valueRaw: 480,
-    timestamp: 'Oct 24, 2023 • 11:14:00 AM',
-    timeIndex: 507,
-  },
-  {
-    id: '#LOG-0506',
-    metric: 'Temperature',
-    metricIcon: 'thermostat',
-    metricColor: 'blue',
-    value: '25.1 °C',
-    valueRaw: 25.1,
-    timestamp: 'Oct 24, 2023 • 11:12:33 AM',
-    timeIndex: 506,
-  },
-  {
-    id: '#LOG-0505',
-    metric: 'Humidity',
-    metricIcon: 'water_drop',
-    metricColor: 'cyan',
-    value: '65%',
-    valueRaw: 65,
-    timestamp: 'Oct 24, 2023 • 11:10:41 AM',
-    timeIndex: 505,
-  },
-  {
-    id: '#LOG-0504',
-    metric: 'Light Intensity',
-    metricIcon: 'light_mode',
-    metricColor: 'yellow',
-    value: '505 Lux',
-    valueRaw: 505,
-    timestamp: 'Oct 24, 2023 • 11:08:07 AM',
-    timeIndex: 504,
-  },
-  {
-    id: '#LOG-0503',
-    metric: 'Temperature',
-    metricIcon: 'thermostat',
-    metricColor: 'blue',
-    value: '24.8 °C',
-    valueRaw: 24.8,
-    timestamp: 'Oct 24, 2023 • 11:05:28 AM',
-    timeIndex: 503,
-  },
-]
-
-const METRIC_TABS = ['All', 'Temperature', 'Light Intensity', 'Humidity']
+import { useEffect, useMemo, useState } from 'react'
+import { getSensors, searchSensorHistory } from '../api/sensorApi'
 
 function metricColorClass(color) {
   if (color === 'blue') return 'metric-blue'
@@ -112,45 +8,118 @@ function metricColorClass(color) {
   return ''
 }
 
+function inferSensorVisual(sensorName) {
+  const lower = String(sensorName || '').toLowerCase()
+
+  if (lower.includes('temp')) return { icon: 'thermostat', color: 'blue' }
+  if (lower.includes('humid')) return { icon: 'water_drop', color: 'cyan' }
+  if (lower.includes('light')) return { icon: 'light_mode', color: 'yellow' }
+
+  return { icon: 'sensors', color: 'blue' }
+}
+
+function formatSensorLogId(value) {
+  const text = String(value || '').trim()
+  if (!text) return '--'
+  if (text.startsWith('#')) return text
+  if (/^\d+$/.test(text)) return `#LOG-${text.padStart(4, '0')}`
+  return `#${text}`
+}
+
 function DataSensorPage() {
-  const [search, setSearch] = useState('')
-  const [filterBy, setFilterBy] = useState('All')
+  const [searchValue, setSearchValue] = useState('')
+  const [activeSensor, setActiveSensor] = useState('')
   const [searchBy, setSearchBy] = useState('value')
   const [sortBy, setSortBy] = useState('Newest')
-  const pageSize = 10
   const [page, setPage] = useState(1)
+  const [rows, setRows] = useState([])
+  const [sensors, setSensors] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState('')
+  const [pagination, setPagination] = useState({
+    pageNo: 1,
+    pageSize: 10,
+    total: 0,
+    totalPages: 1,
+  })
 
-  const filteredLogs = useMemo(() => {
-    let logs = [...SENSOR_LOGS]
+  useEffect(() => {
+    let active = true
 
-    if (filterBy !== 'All') {
-      logs = logs.filter((item) => item.metric === filterBy)
+    async function loadSensors() {
+      try {
+        const sensorList = await getSensors()
+        if (!active) return
+        setSensors(sensorList)
+      } catch {
+        if (!active) return
+        setSensors([])
+      }
     }
 
-    if (search.trim()) {
-      const keyword = search.trim().toLowerCase()
-      logs = logs.filter((item) => {
-        if (searchBy === 'value') return item.value.toLowerCase().includes(keyword)
-        if (searchBy === 'name') return item.metric.toLowerCase().includes(keyword)
-        if (searchBy === 'id') return item.id.toLowerCase().includes(keyword)
-        return item.timestamp.toLowerCase().includes(keyword)
-      })
+    loadSensors()
+
+    return () => {
+      active = false
+    }
+  }, [])
+
+  useEffect(() => {
+    let active = true
+
+    async function loadSensorHistory() {
+      setIsLoading(true)
+      setErrorMessage('')
+
+      const sortField = sortBy === 'ID Asc' || sortBy === 'ID Desc' ? 'id' : 'createdAt'
+      const sortOrder = sortBy === 'Oldest' || sortBy === 'ID Asc' ? 'asc' : 'desc'
+
+      try {
+        const result = await searchSensorHistory({
+          pageNo: page,
+          pageSize: 10,
+          sortBy: sortField,
+          sortOrder,
+          sensorName: activeSensor,
+          searchBy,
+          searchValue,
+        })
+
+        if (!active) return
+        setRows(result.rows)
+        setPagination(result.pagination)
+      } catch (error) {
+        if (!active) return
+        setRows([])
+        setPagination({
+          pageNo: 1,
+          pageSize: 10,
+          total: 0,
+          totalPages: 1,
+        })
+        setErrorMessage(error instanceof Error ? error.message : 'Cannot load sensor history')
+      } finally {
+        if (active) setIsLoading(false)
+      }
     }
 
-    if (sortBy === 'Oldest') logs.sort((a, b) => a.timeIndex - b.timeIndex)
-    if (sortBy === 'Newest') logs.sort((a, b) => b.timeIndex - a.timeIndex)
-    if (sortBy === 'High Value') logs.sort((a, b) => b.valueRaw - a.valueRaw)
-    if (sortBy === 'Low Value') logs.sort((a, b) => a.valueRaw - b.valueRaw)
+    loadSensorHistory()
 
-    return logs
-  }, [filterBy, search, searchBy, sortBy])
+    return () => {
+      active = false
+    }
+  }, [activeSensor, page, searchBy, searchValue, sortBy])
 
-  const totalItems = filteredLogs.length
-  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
+  const totalItems = pagination.total
+  const totalPages = Math.max(1, pagination.totalPages)
   const currentPage = Math.min(page, totalPages)
-  const startIndex = (currentPage - 1) * pageSize
-  const endIndex = Math.min(startIndex + pageSize, totalItems)
-  const pageRows = filteredLogs.slice(startIndex, endIndex)
+  const startIndex = (currentPage - 1) * pagination.pageSize
+  const endIndex = Math.min(startIndex + pagination.pageSize, totalItems)
+
+  const sensorTabs = useMemo(() => {
+    const names = sensors.map((item) => item.name).filter(Boolean)
+    return ['All', ...names]
+  }, [sensors])
 
   function changePage(nextPage) {
     if (nextPage < 1 || nextPage > totalPages) return
@@ -177,10 +146,10 @@ function DataSensorPage() {
           <input
             type="text"
             className="sensor-search-input"
-            placeholder="Search logs..."
-            value={search}
+            placeholder="Search with selected field..."
+            value={searchValue}
             onChange={(event) => {
-              setSearch(event.target.value)
+              setSearchValue(event.target.value)
               setPage(1)
             }}
           />
@@ -196,20 +165,20 @@ function DataSensorPage() {
               <option value="value">Value</option>
               <option value="name">Name</option>
               <option value="time">Time</option>
-              <option value="id">Log ID</option>
+              <option value="id">ID</option>
             </select>
             <span className="material-symbols-outlined">expand_more</span>
           </div>
         </div>
 
         <div className="sensor-tabs">
-          {METRIC_TABS.map((tab) => (
+          {sensorTabs.map((tab) => (
             <button
               key={tab}
               type="button"
-              className={`sensor-tab ${filterBy === tab ? 'active' : ''}`}
+              className={`sensor-tab ${(tab === 'All' ? activeSensor === '' : activeSensor === tab) ? 'active' : ''}`}
               onClick={() => {
-                setFilterBy(tab)
+                setActiveSensor(tab === 'All' ? '' : tab)
                 setPage(1)
               }}
             >
@@ -249,8 +218,8 @@ function DataSensorPage() {
                       >
                         <option>Newest</option>
                         <option>Oldest</option>
-                        <option>High Value</option>
-                        <option>Low Value</option>
+                        <option>ID Asc</option>
+                        <option>ID Desc</option>
                       </select>
                     </div>
                   </div>
@@ -258,26 +227,35 @@ function DataSensorPage() {
               </tr>
             </thead>
             <tbody>
-              {pageRows.map((row) => (
-                <tr key={row.id}>
-                  <td className="mono">{row.id}</td>
-                  <td>
-                    <div className="metric-cell">
-                      <span className={`material-symbols-outlined ${metricColorClass(row.metricColor)}`}>
-                        {row.metricIcon}
-                      </span>
-                      <span>{row.metric}</span>
-                    </div>
-                  </td>
-                  <td>
-                    <span className={metricColorClass(row.metricColor)}>{row.value}</span>
-                  </td>
-                  <td>{row.timestamp}</td>
-                </tr>
-              ))}
+              {rows.map((row) => {
+                const sensorName = row.Sensor?.name || 'Unknown Sensor'
+                const visual = inferSensorVisual(sensorName)
+
+                return (
+                  <tr key={row.id}>
+                    <td className="mono">{formatSensorLogId(row.id)}</td>
+                    <td>
+                      <div className="metric-cell">
+                        <span className={`material-symbols-outlined ${metricColorClass(visual.color)}`}>
+                          {visual.icon}
+                        </span>
+                        <span>{sensorName}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span className={metricColorClass(visual.color)}>{row.value || '--'}</span>
+                    </td>
+                    <td>{row.createdAt || '--'}</td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
+
+        {isLoading ? <p className="action-feedback">Loading sensor history...</p> : null}
+        {!isLoading && errorMessage ? <p className="action-feedback action-feedback-error">{errorMessage}</p> : null}
+        {!isLoading && !errorMessage && rows.length === 0 ? <p className="action-feedback">No sensor data found.</p> : null}
 
         <div className="sensor-table-footer">
           <div className="sensor-footer-left">
@@ -288,7 +266,7 @@ function DataSensorPage() {
 
             <div className="sensor-page-size">
               <label>Page Size:</label>
-              <span>{pageSize}</span>
+              <span>{pagination.pageSize}</span>
             </div>
           </div>
 
