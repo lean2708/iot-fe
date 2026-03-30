@@ -761,6 +761,17 @@ html.dark .device-card.emergency {
   animation: history-spin 1.1s linear infinite;
 }
 
+.action-feedback {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.action-feedback-error {
+  color: #ef4444;
+}
+
 @keyframes history-spin {
   from {
     transform: rotate(0deg);

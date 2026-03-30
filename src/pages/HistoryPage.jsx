@@ -1,119 +1,5 @@
-import { useMemo, useState } from 'react'
-
-const ACTION_LOGS = [
-  {
-    id: '#ACT-9021',
-    device: 'Main Light',
-    type: 'Light',
-    deviceIcon: 'light_mode',
-    deviceColor: 'yellow',
-    action: 'ON',
-    timestamp: 'Oct 24, 2023 • 11:20:45 AM',
-    status: 'ON',
-    order: 9021,
-  },
-  {
-    id: '#ACT-9020',
-    device: 'Ceiling Fan',
-    type: 'Fan',
-    deviceIcon: 'air',
-    deviceColor: 'blue',
-    action: 'ON',
-    timestamp: 'Oct 24, 2023 • 11:15:12 AM',
-    status: 'ON',
-    order: 9020,
-  },
-  {
-    id: '#ACT-9019',
-    device: 'Classroom TV',
-    type: 'TV',
-    deviceIcon: 'tv',
-    deviceColor: 'purple',
-    action: 'OFF',
-    timestamp: 'Oct 24, 2023 • 11:10:05 AM',
-    status: 'OFF',
-    order: 9019,
-  },
-  {
-    id: '#ACT-9018',
-    device: 'Side Lamp',
-    type: 'Light',
-    deviceIcon: 'light_mode',
-    deviceColor: 'yellow',
-    action: 'ON',
-    timestamp: 'Oct 24, 2023 • 11:05:30 AM',
-    status: 'Loading',
-    order: 9018,
-  },
-  {
-    id: '#ACT-9017',
-    device: 'Ceiling Fan',
-    type: 'Fan',
-    deviceIcon: 'air',
-    deviceColor: 'blue',
-    action: 'OFF',
-    timestamp: 'Oct 24, 2023 • 10:55:15 AM',
-    status: 'OFF',
-    order: 9017,
-  },
-  {
-    id: '#ACT-9016',
-    device: 'Classroom TV',
-    type: 'TV',
-    deviceIcon: 'tv',
-    deviceColor: 'purple',
-    action: 'ON',
-    timestamp: 'Oct 24, 2023 • 10:45:00 AM',
-    status: 'ON',
-    order: 9016,
-  },
-  {
-    id: '#ACT-9015',
-    device: 'Main Light',
-    type: 'Light',
-    deviceIcon: 'light_mode',
-    deviceColor: 'yellow',
-    action: 'OFF',
-    timestamp: 'Oct 24, 2023 • 10:30:22 AM',
-    status: 'OFF',
-    order: 9015,
-  },
-  {
-    id: '#ACT-9014',
-    device: 'Ceiling Fan',
-    type: 'Fan',
-    deviceIcon: 'air',
-    deviceColor: 'blue',
-    action: 'ON',
-    timestamp: 'Oct 24, 2023 • 10:20:16 AM',
-    status: 'ON',
-    order: 9014,
-  },
-  {
-    id: '#ACT-9013',
-    device: 'Classroom TV',
-    type: 'TV',
-    deviceIcon: 'tv',
-    deviceColor: 'purple',
-    action: 'OFF',
-    timestamp: 'Oct 24, 2023 • 10:10:09 AM',
-    status: 'OFF',
-    order: 9013,
-  },
-  {
-    id: '#ACT-9012',
-    device: 'Side Lamp',
-    type: 'Light',
-    deviceIcon: 'light_mode',
-    deviceColor: 'yellow',
-    action: 'ON',
-    timestamp: 'Oct 24, 2023 • 10:02:41 AM',
-    status: 'ON',
-    order: 9012,
-  },
-]
-
-const DEVICE_TABS = ['All', 'Light', 'Fan', 'TV']
+import { useEffect, useMemo, useState } from 'react'
+import { getDevices, searchActionHistory } from '../api/actionApi'
 
 function iconColorClass(color) {
   if (color === 'yellow') return 'metric-yellow'
@@ -122,48 +8,130 @@ function iconColorClass(color) {
   return ''
 }
 
+function inferDeviceVisual(deviceName) {
+  const lower = String(deviceName || '').toLowerCase()
+
+  if (lower.includes('light') || lower.includes('lamp')) {
+    return { icon: 'light_mode', color: 'yellow' }
+  }
+  if (lower.includes('fan')) {
+    return { icon: 'air', color: 'blue' }
+  }
+  if (lower.includes('tv')) {
+    return { icon: 'tv', color: 'purple' }
+  }
+  return { icon: 'sensors', color: 'cyan' }
+}
+
+function formatActionId(value) {
+  const text = String(value || '').trim()
+  if (!text) return '--'
+  if (text.startsWith('#')) return text
+  if (/^\d+$/.test(text)) return `#ACT-${text.padStart(4, '0')}`
+  return `#${text}`
+}
+
 function statusClass(status) {
-  if (status === 'ON') return 'history-status-on'
-  if (status === 'OFF') return 'history-status-off'
+  const normalized = String(status || '').toUpperCase()
+  if (normalized === 'ON') return 'history-status-on'
+  if (normalized === 'OFF') return 'history-status-off'
   return 'history-status-loading'
 }
 
 function HistoryPage() {
-  const [search, setSearch] = useState('')
-  const [searchBy, setSearchBy] = useState('device')
-  const [activeTab, setActiveTab] = useState('All')
+  const [searchValue, setSearchValue] = useState('')
+  const [searchBy, setSearchBy] = useState('action')
+  const [activeDevice, setActiveDevice] = useState('')
   const [sortBy, setSortBy] = useState('Newest')
-  const pageSize = 10
   const [page, setPage] = useState(1)
+  const [rows, setRows] = useState([])
+  const [devices, setDevices] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState('')
+  const [pagination, setPagination] = useState({
+    pageNo: 1,
+    pageSize: 10,
+    total: 0,
+    totalPages: 1,
+  })
 
-  const filteredLogs = useMemo(() => {
-    let logs = [...ACTION_LOGS]
+  useEffect(() => {
+    let active = true
 
-    if (activeTab !== 'All') {
-      logs = logs.filter((item) => item.type === activeTab)
+    async function loadDevices() {
+      try {
+        const deviceList = await getDevices()
+        if (!active) return
+        setDevices(deviceList)
+      } catch {
+        if (!active) return
+        setDevices([])
+      }
     }
 
-    if (search.trim()) {
-      const keyword = search.trim().toLowerCase()
-      logs = logs.filter((item) => {
-        if (searchBy === 'device') return item.device.toLowerCase().includes(keyword)
-        if (searchBy === 'action') return item.action.toLowerCase().includes(keyword)
-        return item.id.toLowerCase().includes(keyword)
-      })
+    loadDevices()
+
+    return () => {
+      active = false
+    }
+  }, [])
+
+  useEffect(() => {
+    let active = true
+
+    async function loadActions() {
+      setIsLoading(true)
+      setErrorMessage('')
+
+      const sortField = sortBy === 'ID Asc' || sortBy === 'ID Desc' ? 'id' : 'createdAt'
+      const sortOrder = sortBy === 'Oldest' || sortBy === 'ID Asc' ? 'asc' : 'desc'
+
+      try {
+        const result = await searchActionHistory({
+          pageNo: page,
+          pageSize: 10,
+          sortBy: sortField,
+          sortOrder,
+          deviceName: activeDevice,
+          searchBy,
+          searchValue,
+        })
+
+        if (!active) return
+        setRows(result.rows)
+        setPagination(result.pagination)
+      } catch (error) {
+        if (!active) return
+        setRows([])
+        setPagination({
+          pageNo: 1,
+          pageSize: 10,
+          total: 0,
+          totalPages: 1,
+        })
+        setErrorMessage(error instanceof Error ? error.message : 'Cannot load action history')
+      } finally {
+        if (active) setIsLoading(false)
+      }
     }
 
-    if (sortBy === 'Newest') logs.sort((a, b) => b.order - a.order)
-    if (sortBy === 'Oldest') logs.sort((a, b) => a.order - b.order)
+    loadActions()
 
-    return logs
-  }, [activeTab, search, searchBy, sortBy])
+    return () => {
+      active = false
+    }
+  }, [activeDevice, page, searchBy, searchValue, sortBy])
 
-  const totalItems = filteredLogs.length
-  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
+  const totalItems = pagination.total
+  const totalPages = Math.max(1, pagination.totalPages)
   const currentPage = Math.min(page, totalPages)
-  const startIndex = (currentPage - 1) * pageSize
-  const endIndex = Math.min(startIndex + pageSize, totalItems)
-  const pageRows = filteredLogs.slice(startIndex, endIndex)
+  const startIndex = (currentPage - 1) * pagination.pageSize
+  const endIndex = Math.min(startIndex + pagination.pageSize, totalItems)
+
+  const deviceTabs = useMemo(() => {
+    const names = devices.map((item) => item.name).filter(Boolean)
+    return ['All', ...names]
+  }, [devices])
 
   function changePage(nextPage) {
     if (nextPage < 1 || nextPage > totalPages) return
@@ -190,10 +158,10 @@ function HistoryPage() {
           <input
             type="text"
             className="sensor-search-input"
-            placeholder="Search devices or actions..."
-            value={search}
+            placeholder="Search with selected field..."
+            value={searchValue}
             onChange={(event) => {
-              setSearch(event.target.value)
+              setSearchValue(event.target.value)
               setPage(1)
             }}
           />
@@ -206,22 +174,25 @@ function HistoryPage() {
                 setPage(1)
               }}
             >
-              <option value="device">Device</option>
+              <option value="id">ID</option>
               <option value="action">Action</option>
-              <option value="id">Log ID</option>
+              <option value="status">Status</option>
+              <option value="device">Device</option>
+              <option value="name">Name</option>
+              <option value="time">Time</option>
             </select>
             <span className="material-symbols-outlined">expand_more</span>
           </div>
         </div>
 
         <div className="sensor-tabs">
-          {DEVICE_TABS.map((tab) => (
+          {deviceTabs.map((tab) => (
             <button
               key={tab}
               type="button"
-              className={`sensor-tab ${activeTab === tab ? 'active' : ''}`}
+              className={`sensor-tab ${(tab === 'All' ? activeDevice === '' : activeDevice === tab) ? 'active' : ''}`}
               onClick={() => {
-                setActiveTab(tab)
+                setActiveDevice(tab === 'All' ? '' : tab)
                 setPage(1)
               }}
             >
@@ -263,6 +234,8 @@ function HistoryPage() {
                       >
                         <option>Newest</option>
                         <option>Oldest</option>
+                        <option>ID Asc</option>
+                        <option>ID Desc</option>
                       </select>
                     </div>
                   </div>
@@ -270,38 +243,49 @@ function HistoryPage() {
               </tr>
             </thead>
             <tbody>
-              {pageRows.map((row) => (
+              {rows.map((row) => {
+                const deviceName = row.Device?.name || 'Unknown Device'
+                const visual = inferDeviceVisual(deviceName)
+                const action = String(row.action || '').toUpperCase() || '--'
+                const status = String(row.status || '').toUpperCase() || '--'
+
+                return (
                 <tr key={row.id}>
-                  <td className="mono">{row.id}</td>
+                  <td className="mono">{formatActionId(row.id)}</td>
                   <td>
                     <div className="metric-cell">
-                      <span className={`material-symbols-outlined ${iconColorClass(row.deviceColor)}`}>
-                        {row.deviceIcon}
+                      <span className={`material-symbols-outlined ${iconColorClass(visual.color)}`}>
+                        {visual.icon}
                       </span>
-                      <span>{row.device}</span>
+                      <span>{deviceName}</span>
                     </div>
                   </td>
                   <td>
-                    <span className={`history-action-text ${iconColorClass(row.deviceColor)}`}>
-                      Turn {row.action}
+                    <span className={`history-action-text ${iconColorClass(visual.color)}`}>
+                      Turn {action}
                     </span>
                   </td>
-                  <td>{row.timestamp}</td>
+                  <td>{row.createdAt || '--'}</td>
                   <td>
-                    <div className={`history-status ${statusClass(row.status)}`}>
-                      {row.status === 'Loading' ? (
+                    <div className={`history-status ${statusClass(status)}`}>
+                      {status === 'LOADING' ? (
                         <span className="material-symbols-outlined history-status-spin">progress_activity</span>
                       ) : (
                         <span className="history-status-dot" aria-hidden="true"></span>
                       )}
-                      <span>{row.status}</span>
+                      <span>{status === 'LOADING' ? 'Loading' : status}</span>
                     </div>
                   </td>
                 </tr>
-              ))}
+                )
+              })}
             </tbody>
           </table>
         </div>
+
+        {isLoading ? <p className="action-feedback">Loading action history...</p> : null}
+        {!isLoading && errorMessage ? <p className="action-feedback action-feedback-error">{errorMessage}</p> : null}
+        {!isLoading && !errorMessage && rows.length === 0 ? <p className="action-feedback">No actions found.</p> : null}
 
         <div className="sensor-table-footer">
           <div className="sensor-footer-left">
@@ -312,7 +296,7 @@ function HistoryPage() {
 
             <div className="sensor-page-size">
               <label>Page Size:</label>
-              <span>{pageSize}</span>
+              <span>{pagination.pageSize}</span>
             </div>
           </div>
 
