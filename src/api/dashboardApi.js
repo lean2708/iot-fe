@@ -14,6 +14,7 @@ const state = {
   },
   metrics: {
     temperature: { value: 25, unit: 'C', delta: 0.5, note: 'vs last hour' },
+    humidity: { value: 60, unit: '%', delta: 1.2, note: 'Stable' },
     light: { value: 500, unit: 'Lux', delta: 2, note: 'Optimal range' },
     ledUsage: { value: 330, unit: 'min', delta: 0, note: 'Active hours tracked' },
   },
@@ -27,11 +28,13 @@ function delay(value) {
 
 function generateSensorHistory(seed) {
   const baseTemp = [24, 23, 24, 22, 23, 24, 26, 25]
+  const baseHumidity = [58, 60, 62, 61, 59, 63, 60, 58]
   const baseLight = [320, 380, 420, 540, 500, 470, 520, 490]
   const baseLed = [260, 280, 250, 330, 370, 340, 320, 300]
 
   return {
     temperature: baseTemp.map((value, idx) => value + ((seed + idx) % 2)),
+    humidity: baseHumidity.map((value, idx) => value + ((seed + idx) % 2)),
     light: baseLight.map((value, idx) => value + ((seed + idx) % 3) * 8),
     led: baseLed.map((value, idx) => value + ((seed + idx) % 3) * 6),
   }
