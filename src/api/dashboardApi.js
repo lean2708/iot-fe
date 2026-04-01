@@ -9,8 +9,8 @@ const state = {
   ],
   devices: {
     light: { id: 'light', name: 'Main Lights', status: 'on' },
-    fan: { id: 'fan', name: 'Ceiling Fan', status: 'loading' },
-    tv: { id: 'tv', name: 'Smart TV', status: 'loading' },
+    fan: { id: 'fan', name: 'Ceiling Fan', status: 'off' },
+    tv: { id: 'tv', name: 'Smart TV', status: 'off' },
   },
   metrics: {
     temperature: { value: 25, unit: 'C', delta: 0.5, note: 'vs last hour' },

@@ -10,17 +10,17 @@ const AXIS_24H = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00']
 
 function DashboardPage() {
   const { classroomId } = useAppContext()
-  const { loading, metrics, devices, history, onToggleDevice, connected } = useDashboardData(classroomId)
+  const { loading, metrics, devices, history, onToggleDevice, connected, toasts } = useDashboardData(classroomId)
 
   if (loading || !metrics || !history) {
     return <section className="simple-page">Loading dashboard data...</section>
   }
 
+  // Map device array by position → use string keys matching DEVICE_ID_MAP
   const deviceModel = [
-    { ...devices[0], icon: 'lightbulb' },
-    { ...devices[1], icon: 'mode_fan' },
-    { ...devices[2], icon: 'tv' },
-    { id: 'all-off' },
+    { ...(devices[0] || {}), id: 'light', icon: 'lightbulb' },
+    { ...(devices[1] || {}), id: 'fan',   icon: 'mode_fan'  },
+    { ...(devices[2] || {}), id: 'tv',    icon: 'tv'        },
   ]
 
   return (
@@ -58,7 +58,7 @@ function DashboardPage() {
           unit="%"
           delta={metrics.humidity.delta}
           note={metrics.humidity.note}
-          tone="violet"
+          tone="cyan"
         />
       </section>
 
@@ -86,10 +86,10 @@ function DashboardPage() {
         <ChartCard
           title="Humidity"
           pill={`Avg ${metrics.humidity.value}%`}
-          pillStyle={{ color: '#9333ea', background: 'rgba(168, 85, 247, 0.16)' }}
+          pillStyle={{ color: '#0e7490', background: 'rgba(6, 182, 212, 0.2)' }}
           data={history.humidity}
           axis={AXIS_24H}
-          stroke="#9333ea"
+          stroke="#06b6d4"
           gradientId="humidityGrad"
           unit="%"
         />
@@ -102,6 +102,23 @@ function DashboardPage() {
           ))}
         </div>
       </section>
+
+      {/* ── Toast notifications ── */}
+      {toasts.length > 0 && (
+        <div className="device-toast-stack" aria-live="polite">
+          {toasts.map((toast) => (
+            <div
+              key={toast.id}
+              className={`device-toast device-toast--${toast.type}`}
+            >
+              <span className="material-symbols-outlined device-toast-icon">
+                {toast.type === 'success' ? 'check_circle' : 'error'}
+              </span>
+              {toast.message}
+            </div>
+          ))}
+        </div>
+      )}
     </>
   )
 }

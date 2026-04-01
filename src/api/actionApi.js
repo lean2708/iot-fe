@@ -1,5 +1,33 @@
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '')
 
+/**
+ * Gửi lệnh điều khiển thiết bị → POST /actions/control
+ * @param {number} deviceId  – ID thiết bị (1=Light, 2=Fan, 3=TV)
+ * @param {'ON'|'OFF'} action – Lệnh muốn gửi
+ * @returns {Promise<{id, deviceId, action, status, createdAt, updatedAt}>}
+ */
+export async function controlDevice(deviceId, action) {
+  const response = await fetch(`${API_BASE_URL}/actions/control`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      accept: '*/*',
+    },
+    body: JSON.stringify({ deviceId, action }),
+  })
+
+  if (!response.ok) {
+    throw new Error(`Control request failed (${response.status})`)
+  }
+
+  const payload = await response.json()
+  if (!payload?.success) {
+    throw new Error(payload?.message || 'Control request unsuccessful')
+  }
+
+  return payload.data
+}
+
 export async function getDevices() {
   const response = await fetch(`${API_BASE_URL}/devices`, {
     headers: {

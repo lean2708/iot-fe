@@ -3,6 +3,7 @@ function MetricCard({ icon, label, value, unit, delta, note, tone = 'blue' }) {
     blue: { bg: 'rgba(19, 127, 236, 0.15)', color: '#137fec' },
     yellow: { bg: 'rgba(234, 179, 8, 0.18)', color: '#ca8a04' },
     violet: { bg: 'rgba(168, 85, 247, 0.2)', color: '#9333ea' },
+    cyan: { bg: 'rgba(6, 182, 212, 0.2)', color: '#0891b2' },
   }
 
   const toneStyle = iconTone[tone] ?? iconTone.blue
@@ -26,7 +27,14 @@ function MetricCard({ icon, label, value, unit, delta, note, tone = 'blue' }) {
       </h3>
 
       <div className="metric-foot">
-        {delta > 0 ? <span className="badge-up">+{delta}%</span> : <span className="badge-neutral">Today</span>}
+        {delta > 0 ? (
+          <span className={`badge-up badge-up--${tone}`}>
+            <span className="material-symbols-outlined badge-up-icon" aria-hidden="true">trending_up</span>
+            <span>+{delta}%</span>
+          </span>
+        ) : (
+          <span className="badge-neutral">Today</span>
+        )}
         <p className="metric-note">{note}</p>
       </div>
     </article>
